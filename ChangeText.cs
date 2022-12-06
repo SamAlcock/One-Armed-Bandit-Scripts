@@ -4,9 +4,11 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using TMPro;
+using UnityEngine.InputSystem;
 
 public class ChangeText : MonoBehaviour
 {
+    private DefaultInputActions _input;
     public Text buttonText;
     public int Score;
     public int upper_threshold_1 = 30;
@@ -33,7 +35,17 @@ public class ChangeText : MonoBehaviour
     {
         Score = 0;
         GoodBadText = GameObject.Find("Good/Bad Text");
+
+        _input = new DefaultInputActions();
+
+        _input.Presses.FirstButton.Enable();
+        _input.Presses.FirstButton.performed += FirstButton_performed;
+
+        _input.Presses.SecondButton.Enable();
+        _input.Presses.SecondButton.performed += SecondButton_performed;
     }
+
+    
 
     // Update is called once per frame
     void Update()
@@ -93,14 +105,6 @@ public class ChangeText : MonoBehaviour
 
     public void UpdateProbablity_1() // May be able to use listeners to avoid repetitive code
     {
-        /*
-         * To have an experiment like leapfrog, keep this commented
-         * 
-        if(upper_threshold_1 > 0) // If upper threshold of button clicked is positive
-        {
-            upper_threshold_1--; // Decrement
-        }
-        */
         if (prevClicked == "B1") // If previous button clicked was button 1
         {
             clicked_streak++; // Increment streak
@@ -126,12 +130,6 @@ public class ChangeText : MonoBehaviour
 
     public void UpdateProbablity_2()
     {
-        /*
-        if(upper_threshold_2 > 0)
-        {
-            upper_threshold_2--;
-        }
-        */
         if (prevClicked == "B2")
         {
             clicked_streak++;
@@ -154,4 +152,16 @@ public class ChangeText : MonoBehaviour
             GetIncrease("B2");
         }
     }
+    private void FirstButton_performed(InputAction.CallbackContext obj)
+    {
+        UpdateProbablity_1();
+    }
+
+    private void SecondButton_performed(InputAction.CallbackContext obj)
+    {
+        UpdateProbablity_2();
+    }
+
 }
+
+
