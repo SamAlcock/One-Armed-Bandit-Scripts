@@ -18,14 +18,14 @@ public class ChangeText : MonoBehaviour
     public int B1increase = 15;
     public int B2increase = 15;
     int low_score = 10;
+    float B1Cooldown = 0f;
+    float B2Cooldown = 0f;
     GameObject GoodBadText;
     Color32 red = new Color32(255, 0, 0, 255);
     Color32 green = new Color32(0, 255, 0,255);
 
     string prevClicked = "";
 
-    public Button Button1;
-    public Button Button2;
 
     public AudioSource good_sound; 
     public AudioSource bad_sound;
@@ -50,14 +50,27 @@ public class ChangeText : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        B1Cooldown = CalculateCooldown(B1Cooldown); // Find and return how long is left for cooldown
+        B2Cooldown = CalculateCooldown(B2Cooldown);
+    }
 
+    float CalculateCooldown(float cooldown)
+    {
+        if (cooldown > 0f)
+        {
+            cooldown -= Time.deltaTime;
+            Debug.Log("Cooldown is " + cooldown);
+        }
+        
+
+        return cooldown;
     }
 
     void GetIncrease(string button_pressed)
     {
-        if (button_pressed == "B1")
+        if (button_pressed == "B1") // If button 1 has been pressed
         {
-            B2increase++;
+            B2increase++; // Increment the score button 2 gives
         }
         else if (button_pressed == "B2")
         {
@@ -154,12 +167,21 @@ public class ChangeText : MonoBehaviour
     }
     private void FirstButton_performed(InputAction.CallbackContext obj)
     {
-        UpdateProbablity_1();
+        if (B1Cooldown <= 0) // If the cooldown has finished
+        {
+            B1Cooldown = 0.5f; // Reset cooldown
+            UpdateProbablity_1(); // Carry out function
+        }
     }
 
     private void SecondButton_performed(InputAction.CallbackContext obj)
     {
-        UpdateProbablity_2();
+        if (B2Cooldown <= 0)
+        {
+            B2Cooldown = 0.5f;
+            UpdateProbablity_2();
+        }
+        
     }
 
 }
