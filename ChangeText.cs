@@ -10,6 +10,7 @@ public class ChangeText : MonoBehaviour
 {
     private DefaultInputActions _input;
     public Text buttonText;
+    public int trials_run = 0;
     public int Score;
     public int upper_threshold_1 = 30;
     public int upper_threshold_2 = 50;
@@ -77,7 +78,6 @@ public class ChangeText : MonoBehaviour
         if (cooldown > 0f)
         {
             cooldown -= Time.deltaTime;
-            Debug.Log("Cooldown is " + cooldown);
         }
         
 
@@ -149,7 +149,9 @@ public class ChangeText : MonoBehaviour
         {
             upper_threshold_2++; // Increment
         }
+        Debug.Log("Trial: " + trials_run);
         Debug.Log("First button pressed!");
+        trials_run++;
         prevClicked = "B1";
         NewText(upper_threshold_1, "B1"); // Send updated integer to display up to date score
 
@@ -157,6 +159,7 @@ public class ChangeText : MonoBehaviour
         {
             GetIncrease("B1");
         }
+        CheckIfFinished();
     }
 
     public void UpdateProbablity_2()
@@ -174,13 +177,27 @@ public class ChangeText : MonoBehaviour
         {
             upper_threshold_1++;
         }
+        Debug.Log("Trial: " + trials_run);
         Debug.Log("Second button pressed!");
+        trials_run++;
+        Debug.Log("Trial: " + trials_run);
         prevClicked = "B2";
         NewText(upper_threshold_2, "B2");
 
         if (clicked_streak % streak_limit == 0 && clicked_streak != 0)
         {
             GetIncrease("B2");
+        }
+        CheckIfFinished();
+    }
+
+    void CheckIfFinished()
+    {
+        if (trials_run == 100)
+        {
+            GoodBadText.GetComponent<TextMeshProUGUI>().text = "You have completed all trials";
+            _input.Presses.FirstButton.Disable();
+            _input.Presses.SecondButton.Disable();
         }
     }
     private void FirstButton_performed(InputAction.CallbackContext obj)
