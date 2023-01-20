@@ -15,8 +15,8 @@ public class ChangeText : MonoBehaviour
     public int upper_threshold_2 = 50;
     public int clicked_streak = 0;
     int streak_limit = 5;
-    public int B1increase = 15;
-    public int B2increase = 15;
+    public int B1increase = 10;
+    public int B2increase = 20;
     int low_score = 10;
     float B1Cooldown = 0f;
     float B2Cooldown = 0f;
@@ -70,11 +70,11 @@ public class ChangeText : MonoBehaviour
     {
         if (button_pressed == "B1") // If button 1 has been pressed
         {
-            B2increase++; // Increment the score button 2 gives
+            B2increase += 20; // Increase the score button 2 gives
         }
         else if (button_pressed == "B2")
         {
-            B1increase++;
+            B1increase += 20;
         }
     }
     public void NewText(int upper_threshold, string button_pressed)
