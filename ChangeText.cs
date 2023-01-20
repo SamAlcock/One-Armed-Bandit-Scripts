@@ -18,9 +18,9 @@ public class ChangeText : MonoBehaviour
     public int B1increase = 10;
     public int B2increase = 20;
     int low_score = 10;
-    float B1Cooldown = 0f;
-    float B2Cooldown = 0f;
+    float Cooldown = 0f;
     GameObject GoodBadText;
+    GameObject CooldownText;
     Color32 red = new Color32(255, 0, 0, 255);
     Color32 green = new Color32(0, 255, 0,255);
 
@@ -35,6 +35,7 @@ public class ChangeText : MonoBehaviour
     {
         Score = 0;
         GoodBadText = GameObject.Find("Good/Bad Text");
+        CooldownText = GameObject.Find("Cooldown Text");
 
         _input = new DefaultInputActions();
 
@@ -50,8 +51,25 @@ public class ChangeText : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        B1Cooldown = CalculateCooldown(B1Cooldown); // Find and return how long is left for cooldown
-        B2Cooldown = CalculateCooldown(B2Cooldown);
+        Cooldown = CalculateCooldown(Cooldown); // Find and return how long is left for cooldown
+
+        DisplayCooldown();
+    }
+
+    void DisplayCooldown()
+    {
+        double rounded_cooldown = Math.Round(Cooldown, 2);
+
+        Math.Round(Cooldown, 1);
+        if (Cooldown < 0)
+        {
+            CooldownText.GetComponent<TextMeshProUGUI>().text = "0s";
+        }
+        else
+        {
+            CooldownText.GetComponent<TextMeshProUGUI>().text = rounded_cooldown.ToString() + "s";
+        }
+        
     }
 
     float CalculateCooldown(float cooldown)
@@ -167,18 +185,18 @@ public class ChangeText : MonoBehaviour
     }
     private void FirstButton_performed(InputAction.CallbackContext obj)
     {
-        if (B1Cooldown <= 0) // If the cooldown has finished
+        if (Cooldown <= 0) // If the cooldown has finished
         {
-            B1Cooldown = 0.5f; // Reset cooldown
+            Cooldown = 1f; // Reset cooldown
             UpdateProbablity_1(); // Carry out function
         }
     }
 
     private void SecondButton_performed(InputAction.CallbackContext obj)
     {
-        if (B2Cooldown <= 0)
+        if (Cooldown <= 0)
         {
-            B2Cooldown = 0.5f;
+            Cooldown = 1f;
             UpdateProbablity_2();
         }
         
