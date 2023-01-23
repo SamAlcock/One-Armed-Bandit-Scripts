@@ -150,7 +150,6 @@ public class ChangeText : MonoBehaviour
             upper_threshold_2++; // Increment
         }
         Debug.Log("Trial: " + trials_run);
-        Debug.Log("First button pressed!");
         trials_run++;
         prevClicked = "B1";
         NewText(upper_threshold_1, "B1"); // Send updated integer to display up to date score
@@ -159,6 +158,7 @@ public class ChangeText : MonoBehaviour
         {
             GetIncrease("B1");
         }
+        CheckForFlip();
         CheckIfFinished();
     }
 
@@ -178,9 +178,7 @@ public class ChangeText : MonoBehaviour
             upper_threshold_1++;
         }
         Debug.Log("Trial: " + trials_run);
-        Debug.Log("Second button pressed!");
         trials_run++;
-        Debug.Log("Trial: " + trials_run);
         prevClicked = "B2";
         NewText(upper_threshold_2, "B2");
 
@@ -188,6 +186,7 @@ public class ChangeText : MonoBehaviour
         {
             GetIncrease("B2");
         }
+        CheckForFlip();
         CheckIfFinished();
     }
 
@@ -217,6 +216,33 @@ public class ChangeText : MonoBehaviour
             UpdateProbablity_2();
         }
         
+    }
+
+    void CheckForFlip()
+    {
+        System.Random rand = new();
+        float prob = 12.5f; // Probability of buttons flipping 
+
+        if(rand.Next(100) <= prob) // If random number is less than probability
+        {
+            Debug.Log("Buttons flipped!");
+            FlipButtons();
+        }
+
+    }
+
+    void FlipButtons()
+    {
+        int temp_upper_threshold; // Create temporary variables to store values when switching
+        int temp_B_increase;
+
+        temp_upper_threshold = upper_threshold_1;
+        upper_threshold_1 = upper_threshold_2;
+        upper_threshold_2 = temp_upper_threshold;
+
+        temp_B_increase = B1increase;
+        B1increase = B2increase;
+        B2increase = temp_B_increase;
     }
 
 }
