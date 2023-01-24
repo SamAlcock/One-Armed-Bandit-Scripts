@@ -16,10 +16,11 @@ public class ChangeText : MonoBehaviour
     public int upper_threshold_2 = 50;
     public int clicked_streak = 0;
     int streak_limit = 5;
-    public int B1increase = 10;
+    public int B1increase = 20;
     public int B2increase = 20;
-    int low_score = 10;
+    int low_score = 0;
     float Cooldown = 0f;
+    bool firstB1 = true;
     GameObject GoodBadText;
     GameObject CooldownText;
     Color32 red = new Color32(255, 0, 0, 255);
@@ -86,14 +87,32 @@ public class ChangeText : MonoBehaviour
 
     void GetIncrease(string button_pressed)
     {
-        if (button_pressed == "B1") // If button 1 has been pressed
+        System.Random rand = new();
+        float prob = 125f; // Probability of buttons flipping 
+        int randy = rand.Next(1000);
+        Debug.Log("Random number is " + randy);
+        if (randy <= prob)
         {
-            B2increase += 20; // Increase the score button 2 gives
+            if (button_pressed == "B1" && B2increase <= B1increase) // If button 1 has been pressed and B2 is currently inferior
+            {
+                
+                B2increase += 20; // Increase the score button 2 gives
+
+                Debug.Log("B2 Increased!");
+            }
+            else if (button_pressed == "B2" && B1increase <= B2increase)
+            {
+                if (firstB1)
+                {
+                    B1increase += 10; // First B1 jump is 30 instead of 20
+                    firstB1 = false;
+                }
+                B1increase += 20;
+
+                Debug.Log("B1 Increased!");
+            }
         }
-        else if (button_pressed == "B2")
-        {
-            B1increase += 20;
-        }
+        
     }
     public void NewText(int upper_threshold, string button_pressed)
     {
@@ -136,57 +155,28 @@ public class ChangeText : MonoBehaviour
 
     public void UpdateProbablity_1() // May be able to use listeners to avoid repetitive code
     {
-        if (prevClicked == "B1") // If previous button clicked was button 1
-        {
-            clicked_streak++; // Increment streak
-        }
-        else if(prevClicked == "B2") // Else if previous button clicked was button 2
-        {
-            clicked_streak = 0; // Reset streak to 0
-        }
-
-        if(upper_threshold_2 < 100 && clicked_streak <= streak_limit) // If upper threshold of button not clicked is less that 100
-        {
-            upper_threshold_2++; // Increment
-        }
+        
         Debug.Log("Trial: " + trials_run);
         trials_run++;
         prevClicked = "B1";
         NewText(upper_threshold_1, "B1"); // Send updated integer to display up to date score
 
-        if (clicked_streak % streak_limit == 0 && clicked_streak != 0)
-        {
-            GetIncrease("B1");
-        }
-        CheckForFlip();
+        GetIncrease("B1");
+        
+        //CheckForFlip();
         CheckIfFinished();
     }
 
     public void UpdateProbablity_2()
     {
-        if (prevClicked == "B2")
-        {
-            clicked_streak++;
-        }
-        else if (prevClicked == "B1")
-        {
-            clicked_streak = 0;
-        }
-
-        if (upper_threshold_1 < 100 && clicked_streak <= streak_limit)
-        {
-            upper_threshold_1++;
-        }
         Debug.Log("Trial: " + trials_run);
         trials_run++;
         prevClicked = "B2";
         NewText(upper_threshold_2, "B2");
 
-        if (clicked_streak % streak_limit == 0 && clicked_streak != 0)
-        {
-            GetIncrease("B2");
-        }
-        CheckForFlip();
+        GetIncrease("B2");
+
+        //CheckForFlip();
         CheckIfFinished();
     }
 
@@ -218,7 +208,7 @@ public class ChangeText : MonoBehaviour
         
     }
 
-    void CheckForFlip()
+    void CheckForFlip() // Probably don't need this
     {
         System.Random rand = new();
         float prob = 12.5f; // Probability of buttons flipping 
@@ -231,7 +221,7 @@ public class ChangeText : MonoBehaviour
 
     }
 
-    void FlipButtons()
+    void FlipButtons() // Probably don't need this
     {
         int temp_upper_threshold; // Create temporary variables to store values when switching
         int temp_B_increase;
