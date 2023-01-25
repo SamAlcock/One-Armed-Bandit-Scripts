@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using System;
 using TMPro;
 using UnityEngine.InputSystem;
+using Unity.VisualScripting;
 
 public class ChangeText : MonoBehaviour
 {
@@ -15,14 +16,18 @@ public class ChangeText : MonoBehaviour
     public int upper_threshold_1 = 30;
     public int upper_threshold_2 = 50;
     public int clicked_streak = 0;
-    int streak_limit = 5;
     public int B1increase = 20;
     public int B2increase = 20;
     int low_score = 0;
     float Cooldown = 0f;
+    float trial_time = 0f;
+    float time_passed = 0f;
     bool firstB1 = true;
+    bool button_pressed;
     GameObject GoodBadText;
     GameObject CooldownText;
+    GameObject ChooseText;
+    GameObject TooSlowText;
     Color32 red = new Color32(255, 0, 0, 255);
     Color32 green = new Color32(0, 255, 0,255);
 
@@ -38,6 +43,10 @@ public class ChangeText : MonoBehaviour
         Score = 0;
         GoodBadText = GameObject.Find("Good/Bad Text");
         CooldownText = GameObject.Find("Cooldown Text");
+        ChooseText = GameObject.Find("Choose Text");
+        TooSlowText = GameObject.Find("Too Slow Text");
+
+        TooSlowText.SetActive(true);
 
         _input = new DefaultInputActions();
 
@@ -53,44 +62,61 @@ public class ChangeText : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Cooldown = CalculateCooldown(Cooldown); // Find and return how long is left for cooldown
+        Cooldown = CalculateTime(Cooldown); // Find and return how long is left for cooldown
 
-        DisplayCooldown();
+        trial_time = CalculateTime(trial_time);
+
+        CheckIfNewTrail();
+
     }
 
-    void DisplayCooldown()
+    void CheckIfNewTrail()
     {
-        double rounded_cooldown = Math.Round(Cooldown, 2);
-
-        Math.Round(Cooldown, 1);
-        if (Cooldown < 0)
+        time_passed += Time.deltaTime;
+        if (time_passed >= 1.5)
         {
-            CooldownText.GetComponent<TextMeshProUGUI>().text = "0s";
+            if (!button_pressed)
+            {
+                StartCoroutine(ShowTooSlow());
+            }
+            trials_run++;
+            Debug.Log("Trial: " + trials_run);
+            time_passed = 0;
         }
-        else
+        else if (button_pressed && time_passed < 1.5)
         {
-            CooldownText.GetComponent<TextMeshProUGUI>().text = rounded_cooldown.ToString() + "s";
+            time_passed = 0;
+            trials_run++;
+            Debug.Log("Trial: " + trials_run);
         }
+        button_pressed = false;
         
     }
 
-    float CalculateCooldown(float cooldown)
+    IEnumerator ShowTooSlow()
     {
-        if (cooldown > 0f)
+        TooSlowText.SetActive(true);
+        yield return new WaitForSeconds(2);
+        TooSlowText.SetActive(false);
+    }
+
+    float CalculateTime(float time)
+    {
+        if (time > 0f)
         {
-            cooldown -= Time.deltaTime;
+            time -= Time.deltaTime;
         }
         
 
-        return cooldown;
+        return time;
     }
 
     void GetIncrease(string button_pressed)
     {
         System.Random rand = new();
-        float prob = 125f; // Probability of buttons flipping 
+        float prob = 125f; // Probability of buttons jumping
         int randy = rand.Next(1000);
-        Debug.Log("Random number is " + randy);
+
         if (randy <= prob)
         {
             if (button_pressed == "B1" && B2increase <= B1increase) // If button 1 has been pressed and B2 is currently inferior
@@ -156,8 +182,8 @@ public class ChangeText : MonoBehaviour
     public void UpdateProbablity_1() // May be able to use listeners to avoid repetitive code
     {
         
-        Debug.Log("Trial: " + trials_run);
-        trials_run++;
+        
+
         prevClicked = "B1";
         NewText(upper_threshold_1, "B1"); // Send updated integer to display up to date score
 
@@ -169,8 +195,8 @@ public class ChangeText : MonoBehaviour
 
     public void UpdateProbablity_2()
     {
-        Debug.Log("Trial: " + trials_run);
-        trials_run++;
+        
+
         prevClicked = "B2";
         NewText(upper_threshold_2, "B2");
 
@@ -194,6 +220,7 @@ public class ChangeText : MonoBehaviour
         if (Cooldown <= 0) // If the cooldown has finished
         {
             Cooldown = 1f; // Reset cooldown
+            button_pressed = true;
             UpdateProbablity_1(); // Carry out function
         }
     }
@@ -203,6 +230,7 @@ public class ChangeText : MonoBehaviour
         if (Cooldown <= 0)
         {
             Cooldown = 1f;
+            button_pressed = true;
             UpdateProbablity_2();
         }
         
@@ -211,9 +239,9 @@ public class ChangeText : MonoBehaviour
     void CheckForFlip() // Probably don't need this
     {
         System.Random rand = new();
-        float prob = 12.5f; // Probability of buttons flipping 
+        float prob = 125f; // Probability of buttons flipping 
 
-        if(rand.Next(100) <= prob) // If random number is less than probability
+        if(rand.Next(1000) <= prob) // If random number is less than probability
         {
             Debug.Log("Buttons flipped!");
             FlipButtons();
