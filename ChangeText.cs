@@ -24,10 +24,15 @@ public class ChangeText : MonoBehaviour
     float time_passed = 0f;
     bool firstB1 = true;
     bool button_pressed;
+    bool trial_started = false;
     GameObject GoodBadText;
     GameObject CooldownText;
     GameObject ChooseText;
     GameObject TooSlowText;
+    GameObject ZSpritePress;
+    GameObject MSpritePress;
+    GameObject ZSprite;
+    GameObject MSprite;
     Color32 red = new Color32(255, 0, 0, 255);
     Color32 green = new Color32(0, 255, 0,255);
 
@@ -46,10 +51,20 @@ public class ChangeText : MonoBehaviour
         ChooseText = GameObject.Find("Choose Text");
         TooSlowText = GameObject.Find("Too Slow Text");
 
-        TooSlowText.SetActive(true);
+        ZSpritePress = GameObject.Find("Z Key pressed");
+        MSpritePress = GameObject.Find("M Key pressed");
+        ZSprite = GameObject.Find("Z Key");
+        MSprite = GameObject.Find("M Key");
+
+        TooSlowText.SetActive(false);
+
+        ZSpritePress.SetActive(false);
+        MSpritePress.SetActive(false);
 
         _input = new DefaultInputActions();
 
+
+        // Enabling key presses
         _input.Presses.FirstButton.Enable();
         _input.Presses.FirstButton.performed += FirstButton_performed;
 
@@ -62,49 +77,64 @@ public class ChangeText : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Cooldown = CalculateTime(Cooldown); // Find and return how long is left for cooldown
+        if (trial_started) // Need this if statement to ensure that the trials only start after the user's first button press
+        {
+            Cooldown = CalculateTime(Cooldown); // Find and return how long is left for cooldown
 
-        trial_time = CalculateTime(trial_time);
+            trial_time = CalculateTime(trial_time);
 
-        CheckIfNewTrail();
+            CheckIfNewTrail();
+        }
+        
 
     }
 
     void CheckIfNewTrail()
     {
-        time_passed += Time.deltaTime;
-        if (time_passed >= 1.5)
+        time_passed += Time.deltaTime; // Calculate time passed since the start of trial
+        if (time_passed >= 1.5) // If time has passed specified amount
         {
-            if (!button_pressed)
+            if (!button_pressed) // If a button has not been pressed
             {
-                StartCoroutine(ShowTooSlow());
+                StartCoroutine(ShowTooSlow()); // Display 'Too slow'
             }
-            trials_run++;
+            trials_run++; // Go to next trial
             Debug.Log("Trial: " + trials_run);
-            time_passed = 0;
+            time_passed = 0; // Reset timer
         }
-        else if (button_pressed && time_passed < 1.5)
+        else if (button_pressed && time_passed < 1.5) // If button is pressed and timer has not exceeded maximum
         {
-            time_passed = 0;
-            trials_run++;
+            time_passed = 0; // Reset timer
+            trials_run++; // Go to next trial
             Debug.Log("Trial: " + trials_run);
         }
-        button_pressed = false;
+        button_pressed = false; // Reset button press for next trial
         
     }
 
-    IEnumerator ShowTooSlow()
+    IEnumerator ShowTooSlow() // Displays 'Too slow' for specified time
     {
+        ChooseText.SetActive(false);
         TooSlowText.SetActive(true);
         yield return new WaitForSeconds(2);
         TooSlowText.SetActive(false);
+        ChooseText.SetActive(true);
+    }
+
+    IEnumerator ShowKeyPress(GameObject PressedKey, GameObject Key) // Activates/Deactivates key sprites to give user visual feedback for key presses
+    {
+        PressedKey.SetActive(true);
+        Key.SetActive(false);
+        yield return new WaitForSeconds(0.3f);
+        PressedKey.SetActive(false);
+        Key.SetActive(true);
     }
 
     float CalculateTime(float time)
     {
         if (time > 0f)
         {
-            time -= Time.deltaTime;
+            time -= Time.deltaTime; // Subtract time elapsed from time 
         }
         
 
@@ -166,7 +196,7 @@ public class ChangeText : MonoBehaviour
         }
         else
         {
-            Score += low_score;
+            Score += low_score; // Adds gained score to score total
             inc_display = low_score;
             good_bad = "Bad";
             GoodBadText.GetComponent<TextMeshProUGUI>().color = new Color32(255, 0, 0, 255);
@@ -219,7 +249,12 @@ public class ChangeText : MonoBehaviour
     {
         if (Cooldown <= 0) // If the cooldown has finished
         {
+            if (!trial_started)
+            {
+                trial_started = true;
+            }
             Cooldown = 1f; // Reset cooldown
+            StartCoroutine(ShowKeyPress(ZSpritePress, ZSprite));
             button_pressed = true;
             UpdateProbablity_1(); // Carry out function
         }
@@ -229,38 +264,16 @@ public class ChangeText : MonoBehaviour
     {
         if (Cooldown <= 0)
         {
+            if (!trial_started)
+            {
+                trial_started = true;
+            }
             Cooldown = 1f;
+            StartCoroutine(ShowKeyPress(MSpritePress, MSprite));
             button_pressed = true;
             UpdateProbablity_2();
         }
         
-    }
-
-    void CheckForFlip() // Probably don't need this
-    {
-        System.Random rand = new();
-        float prob = 125f; // Probability of buttons flipping 
-
-        if(rand.Next(1000) <= prob) // If random number is less than probability
-        {
-            Debug.Log("Buttons flipped!");
-            FlipButtons();
-        }
-
-    }
-
-    void FlipButtons() // Probably don't need this
-    {
-        int temp_upper_threshold; // Create temporary variables to store values when switching
-        int temp_B_increase;
-
-        temp_upper_threshold = upper_threshold_1;
-        upper_threshold_1 = upper_threshold_2;
-        upper_threshold_2 = temp_upper_threshold;
-
-        temp_B_increase = B1increase;
-        B1increase = B2increase;
-        B2increase = temp_B_increase;
     }
 
 }
