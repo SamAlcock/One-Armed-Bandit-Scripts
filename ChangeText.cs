@@ -83,16 +83,17 @@ public class ChangeText : MonoBehaviour
 
             trial_time = CalculateTime(trial_time);
 
-            CheckIfNewTrail();
+            CheckIfNewTrial();
         }
         
 
     }
 
-    void CheckIfNewTrail()
+    void CheckIfNewTrial()
     {
+        float choice_time = 2f;
         time_passed += Time.deltaTime; // Calculate time passed since the start of trial
-        if (time_passed >= 1.5) // If time has passed specified amount
+        if (time_passed >= choice_time) // If time has passed specified amount
         {
             if (!button_pressed) // If a button has not been pressed
             {
@@ -102,7 +103,7 @@ public class ChangeText : MonoBehaviour
             Debug.Log("Trial: " + trials_run);
             time_passed = 0; // Reset timer
         }
-        else if (button_pressed && time_passed < 1.5) // If button is pressed and timer has not exceeded maximum
+        else if (button_pressed && time_passed < choice_time) // If button is pressed and timer has not exceeded maximum
         {
             time_passed = 0; // Reset timer
             trials_run++; // Go to next trial
@@ -116,7 +117,7 @@ public class ChangeText : MonoBehaviour
     {
         ChooseText.SetActive(false);
         TooSlowText.SetActive(true);
-        yield return new WaitForSeconds(2);
+        yield return new WaitForSeconds(1);
         TooSlowText.SetActive(false);
         ChooseText.SetActive(true);
     }
@@ -139,6 +140,11 @@ public class ChangeText : MonoBehaviour
         
 
         return time;
+    }
+
+    IEnumerator WaitFor(float seconds)
+    {
+        yield return new WaitForSeconds(seconds);
     }
 
     void GetIncrease(string button_pressed)
@@ -170,7 +176,7 @@ public class ChangeText : MonoBehaviour
         }
         
     }
-    public void NewText(int upper_threshold, string button_pressed)
+    IEnumerator NewText(int upper_threshold, string button_pressed)
     {
         System.Random random = new System.Random();
         int num = random.Next(1, 100); // Picks random number from 1 - 100
@@ -203,9 +209,10 @@ public class ChangeText : MonoBehaviour
             bad_sound.Play();
         }
 
-        
-
         buttonText.text = "SCORE\n" + Score + " (+" + inc_display + ")"; // Update score on screen
+        Debug.Log("Started waiting");
+        yield return new WaitForSeconds(1.5f);
+        Debug.Log("Finshed waiting");
         GoodBadText.GetComponent<TextMeshProUGUI>().text = good_bad;
     }
 
@@ -215,7 +222,7 @@ public class ChangeText : MonoBehaviour
         
 
         prevClicked = "B1";
-        NewText(upper_threshold_1, "B1"); // Send updated integer to display up to date score
+        StartCoroutine(NewText(upper_threshold_1, "B1")); // Send updated integer to display up to date score
 
         GetIncrease("B1");
         
@@ -228,7 +235,7 @@ public class ChangeText : MonoBehaviour
         
 
         prevClicked = "B2";
-        NewText(upper_threshold_2, "B2");
+        StartCoroutine(NewText(upper_threshold_2, "B2"));
 
         GetIncrease("B2");
 
