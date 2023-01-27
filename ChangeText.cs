@@ -25,6 +25,7 @@ public class ChangeText : MonoBehaviour
     bool firstB1 = true;
     bool button_pressed;
     bool trial_started = false;
+    bool too_slow = false;
     GameObject GoodBadText;
     GameObject CooldownText;
     GameObject ChooseText;
@@ -92,34 +93,39 @@ public class ChangeText : MonoBehaviour
     void CheckIfNewTrial()
     {
         float choice_time = 2f;
+        int temp_trial = trials_run; // Stores current trial so that it can be detected if the trial has incremented later
         time_passed += Time.deltaTime; // Calculate time passed since the start of trial
         if (time_passed >= choice_time) // If time has passed specified amount
         {
             if (!button_pressed) // If a button has not been pressed
             {
-                StartCoroutine(ShowTooSlow()); // Display 'Too slow'
+                StartCoroutine(ShowTooSlow());
             }
             trials_run++; // Go to next trial
             Debug.Log("Trial: " + trials_run);
             time_passed = 0; // Reset timer
         }
-        else if (button_pressed && time_passed < choice_time) // If button is pressed and timer has not exceeded maximum
+        if(temp_trial < trials_run)
         {
-            time_passed = 0; // Reset timer
-            trials_run++; // Go to next trial
-            Debug.Log("Trial: " + trials_run);
+            button_pressed = false; // Reset button press for next trial
         }
-        button_pressed = false; // Reset button press for next trial
+        
         
     }
 
     IEnumerator ShowTooSlow() // Displays 'Too slow' for specified time
     {
+        _input.Presses.FirstButton.Disable();
+        _input.Presses.SecondButton.Disable();
+        
         ChooseText.SetActive(false);
         TooSlowText.SetActive(true);
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(1.5f);
         TooSlowText.SetActive(false);
         ChooseText.SetActive(true);
+
+        _input.Presses.FirstButton.Enable();
+        _input.Presses.SecondButton.Enable();
     }
 
     IEnumerator ShowKeyPress(GameObject PressedKey, GameObject Key) // Activates/Deactivates key sprites to give user visual feedback for key presses
@@ -140,11 +146,6 @@ public class ChangeText : MonoBehaviour
         
 
         return time;
-    }
-
-    IEnumerator WaitFor(float seconds)
-    {
-        yield return new WaitForSeconds(seconds);
     }
 
     void GetIncrease(string button_pressed)
@@ -210,36 +211,40 @@ public class ChangeText : MonoBehaviour
         }
 
         buttonText.text = "SCORE\n" + Score + " (+" + inc_display + ")"; // Update score on screen
-        Debug.Log("Started waiting");
-        yield return new WaitForSeconds(1.5f);
-        Debug.Log("Finshed waiting");
         GoodBadText.GetComponent<TextMeshProUGUI>().text = good_bad;
+
+        Debug.Log("Started waiting");
+        _input.Presses.FirstButton.Disable();
+        _input.Presses.SecondButton.Disable();
+        yield return new WaitForSeconds(1.5f);
+        _input.Presses.FirstButton.Enable();
+        _input.Presses.SecondButton.Enable();
+
+        TooSlowText.SetActive(false);
+        ChooseText.SetActive(true);
+
+        Debug.Log("Finshed waiting");
+
+        
     }
 
     public void UpdateProbablity_1() // May be able to use listeners to avoid repetitive code
     {
-        
-        
-
         prevClicked = "B1";
         StartCoroutine(NewText(upper_threshold_1, "B1")); // Send updated integer to display up to date score
 
         GetIncrease("B1");
-        
-        //CheckForFlip();
+
         CheckIfFinished();
     }
 
     public void UpdateProbablity_2()
     {
-        
-
         prevClicked = "B2";
         StartCoroutine(NewText(upper_threshold_2, "B2"));
 
         GetIncrease("B2");
 
-        //CheckForFlip();
         CheckIfFinished();
     }
 
@@ -263,6 +268,7 @@ public class ChangeText : MonoBehaviour
             Cooldown = 1f; // Reset cooldown
             StartCoroutine(ShowKeyPress(ZSpritePress, ZSprite));
             button_pressed = true;
+            ChooseText.SetActive(false);
             UpdateProbablity_1(); // Carry out function
         }
     }
@@ -278,6 +284,7 @@ public class ChangeText : MonoBehaviour
             Cooldown = 1f;
             StartCoroutine(ShowKeyPress(MSpritePress, MSprite));
             button_pressed = true;
+            ChooseText.SetActive(false);
             UpdateProbablity_2();
         }
         
