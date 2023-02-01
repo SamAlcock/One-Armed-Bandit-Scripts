@@ -72,9 +72,6 @@ public class ChangeText : MonoBehaviour
         _input.Presses.SecondButton.performed += SecondButton_performed;
     }
 
-    /* BUGS WITH UNKNOWN REASONS
-     *  */
-
     // Update is called once per frame
     void Update()
     {
@@ -104,10 +101,11 @@ public class ChangeText : MonoBehaviour
         {
             trials_run++; // Go to next trial
             Debug.Log("Trial: " + trials_run);
+            keys_enabled = true;
             trial_finished = false;
             button_pressed = false; // Reset button press for next trial
         }
-        keys_enabled = true;
+        
     }
 
     IEnumerator ShowTooSlow() // Displays 'Too slow' for specified time
@@ -119,8 +117,6 @@ public class ChangeText : MonoBehaviour
         yield return new WaitForSeconds(1.5f);
         TooSlowText.SetActive(false);
         ChooseText.SetActive(true);
-
-        keys_enabled = true;
 
         trial_finished = true;
     }
@@ -203,15 +199,11 @@ public class ChangeText : MonoBehaviour
         buttonText.text = "SCORE\n" + Score + " (+" + inc_display + ")"; // Update score on screen
         GoodBadText.GetComponent<TextMeshProUGUI>().text = good_bad;
 
-        keys_enabled = false;
-
         yield return new WaitForSeconds(1.5f);
-
-        keys_enabled = true;
 
         TooSlowText.SetActive(false);
         ChooseText.SetActive(true);
-        
+
     }
 
     public void UpdateProbablity_1() // May be able to use listeners to avoid repetitive code
@@ -245,7 +237,6 @@ public class ChangeText : MonoBehaviour
     }
     private void FirstButton_performed(InputAction.CallbackContext obj)
     {
-        Debug.Log(Cooldown);
         if (Cooldown <= 0 && keys_enabled) // If the cooldown has finished
         {
             if (!trial_started)
@@ -253,6 +244,7 @@ public class ChangeText : MonoBehaviour
                 trial_started = true;
                 StartTrial();
             }
+            keys_enabled = false;
             Cooldown = 1f; // Reset cooldown
             StartCoroutine(ShowKeyPress(ZSpritePress, ZSprite));
             button_pressed = true;
@@ -270,6 +262,7 @@ public class ChangeText : MonoBehaviour
                 trial_started = true;
                 StartTrial();
             }
+            keys_enabled = false;
             Cooldown = 1f;
             StartCoroutine(ShowKeyPress(MSpritePress, MSprite));
             button_pressed = true;
