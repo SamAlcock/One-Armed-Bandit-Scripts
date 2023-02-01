@@ -20,14 +20,13 @@ public class ChangeText : MonoBehaviour
     public int B2increase = 20;
     int low_score = 0;
     float Cooldown = 0f;
-    float trial_time = 0f;
     float time_passed = 0f;
     bool firstB1 = true;
     bool button_pressed;
     bool trial_started = false;
-    bool too_slow = false;
+    bool trial_finished = false;
+    bool keys_enabled;
     GameObject GoodBadText;
-    GameObject CooldownText;
     GameObject ChooseText;
     GameObject TooSlowText;
     GameObject ZSpritePress;
@@ -48,7 +47,6 @@ public class ChangeText : MonoBehaviour
     {
         Score = 0;
         GoodBadText = GameObject.Find("Good/Bad Text");
-        CooldownText = GameObject.Find("Cooldown Text");
         ChooseText = GameObject.Find("Choose Text");
         TooSlowText = GameObject.Find("Too Slow Text");
 
@@ -66,6 +64,8 @@ public class ChangeText : MonoBehaviour
 
 
         // Enabling key presses
+
+        keys_enabled = true;
         _input.Presses.FirstButton.Enable();
         _input.Presses.FirstButton.performed += FirstButton_performed;
 
@@ -73,7 +73,8 @@ public class ChangeText : MonoBehaviour
         _input.Presses.SecondButton.performed += SecondButton_performed;
     }
 
-    
+    /* BUGS WITH UNKNOWN REASONS
+     * - Controls will sometimes disable and never get enabled again - is .Enable() unreachable under some conditions? */
 
     // Update is called once per frame
     void Update()
@@ -82,50 +83,54 @@ public class ChangeText : MonoBehaviour
         {
             Cooldown = CalculateTime(Cooldown); // Find and return how long is left for cooldown
 
-            trial_time = CalculateTime(trial_time);
-
-            CheckIfNewTrial();
+            time_passed = CalculateTime(time_passed);
+            
         }
-        
-
     }
 
+    void StartTrial()
+    {
+        InvokeRepeating("CheckIfNewTrial", 2f, 2f);
+    }
     void CheckIfNewTrial()
     {
-        float choice_time = 2f;
-        int temp_trial = trials_run; // Stores current trial so that it can be detected if the trial has incremented later
-        time_passed += Time.deltaTime; // Calculate time passed since the start of trial
-        if (time_passed >= choice_time) // If time has passed specified amount
+        if (!button_pressed && !trial_finished) // If a button has not been pressed and trial is not finished
         {
-            if (!button_pressed) // If a button has not been pressed
-            {
-                StartCoroutine(ShowTooSlow());
-            }
+            Debug.Log("Starting TooSlow Coroutine");
+            StartCoroutine(ShowTooSlow()); /* Bug - This makes future trials have only 0.5 seconds to choose, it runs whilst the lines below run. It disables controls
+                                            * for 1.5 seconds whilst the next trial is starting */
+        }
+        else if (button_pressed && !trial_finished)
+        {
+            trial_finished = true;
+        }
+        if (trial_finished) 
+        {
+            Debug.Log("Trial Finished");
+            time_passed = 0;
             trials_run++; // Go to next trial
             Debug.Log("Trial: " + trials_run);
-            time_passed = 0; // Reset timer
-        }
-        if(temp_trial < trials_run)
-        {
+            trial_finished = false;
             button_pressed = false; // Reset button press for next trial
+
+            
         }
-        
-        
+        keys_enabled = true;
     }
 
     IEnumerator ShowTooSlow() // Displays 'Too slow' for specified time
     {
-        _input.Presses.FirstButton.Disable();
-        _input.Presses.SecondButton.Disable();
-        
+        keys_enabled = false;
+
         ChooseText.SetActive(false);
         TooSlowText.SetActive(true);
         yield return new WaitForSeconds(1.5f);
         TooSlowText.SetActive(false);
         ChooseText.SetActive(true);
 
-        _input.Presses.FirstButton.Enable();
-        _input.Presses.SecondButton.Enable();
+        keys_enabled = true;
+
+        trial_finished = true;
     }
 
     IEnumerator ShowKeyPress(GameObject PressedKey, GameObject Key) // Activates/Deactivates key sprites to give user visual feedback for key presses
@@ -139,12 +144,7 @@ public class ChangeText : MonoBehaviour
 
     float CalculateTime(float time)
     {
-        if (time > 0f)
-        {
-            time -= Time.deltaTime; // Subtract time elapsed from time 
-        }
-        
-
+        time += Time.deltaTime; // Add time elapsed to time 
         return time;
     }
 
@@ -158,7 +158,6 @@ public class ChangeText : MonoBehaviour
         {
             if (button_pressed == "B1" && B2increase <= B1increase) // If button 1 has been pressed and B2 is currently inferior
             {
-                
                 B2increase += 20; // Increase the score button 2 gives
 
                 Debug.Log("B2 Increased!");
@@ -199,7 +198,6 @@ public class ChangeText : MonoBehaviour
             good_bad = "Good";
             GoodBadText.GetComponent<TextMeshProUGUI>().color = new Color32(0, 255, 0, 255);
             good_sound.Play();
-
         }
         else
         {
@@ -213,12 +211,11 @@ public class ChangeText : MonoBehaviour
         buttonText.text = "SCORE\n" + Score + " (+" + inc_display + ")"; // Update score on screen
         GoodBadText.GetComponent<TextMeshProUGUI>().text = good_bad;
 
-        Debug.Log("Started waiting");
-        _input.Presses.FirstButton.Disable();
-        _input.Presses.SecondButton.Disable();
+        keys_enabled = false;
+
         yield return new WaitForSeconds(1.5f);
-        _input.Presses.FirstButton.Enable();
-        _input.Presses.SecondButton.Enable();
+
+        keys_enabled = true;
 
         TooSlowText.SetActive(false);
         ChooseText.SetActive(true);
@@ -259,11 +256,12 @@ public class ChangeText : MonoBehaviour
     }
     private void FirstButton_performed(InputAction.CallbackContext obj)
     {
-        if (Cooldown <= 0) // If the cooldown has finished
+        if (Cooldown <= 0 && keys_enabled) // If the cooldown has finished
         {
             if (!trial_started)
             {
                 trial_started = true;
+                StartTrial();
             }
             Cooldown = 1f; // Reset cooldown
             StartCoroutine(ShowKeyPress(ZSpritePress, ZSprite));
@@ -275,11 +273,12 @@ public class ChangeText : MonoBehaviour
 
     private void SecondButton_performed(InputAction.CallbackContext obj)
     {
-        if (Cooldown <= 0)
+        if (Cooldown <= 0 && keys_enabled)
         {
             if (!trial_started)
             {
                 trial_started = true;
+                StartTrial();
             }
             Cooldown = 1f;
             StartCoroutine(ShowKeyPress(MSpritePress, MSprite));
