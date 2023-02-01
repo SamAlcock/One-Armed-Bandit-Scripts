@@ -20,7 +20,6 @@ public class ChangeText : MonoBehaviour
     public int B2increase = 20;
     int low_score = 0;
     float Cooldown = 0f;
-    float time_passed = 0f;
     bool firstB1 = true;
     bool button_pressed;
     bool trial_started = false;
@@ -74,7 +73,7 @@ public class ChangeText : MonoBehaviour
     }
 
     /* BUGS WITH UNKNOWN REASONS
-     * - Controls will sometimes disable and never get enabled again - is .Enable() unreachable under some conditions? */
+     *  */
 
     // Update is called once per frame
     void Update()
@@ -82,9 +81,6 @@ public class ChangeText : MonoBehaviour
         if (trial_started) // Need this if statement to ensure that the trials only start after the user's first button press
         {
             Cooldown = CalculateTime(Cooldown); // Find and return how long is left for cooldown
-
-            time_passed = CalculateTime(time_passed);
-            
         }
     }
 
@@ -97,23 +93,19 @@ public class ChangeText : MonoBehaviour
         if (!button_pressed && !trial_finished) // If a button has not been pressed and trial is not finished
         {
             Debug.Log("Starting TooSlow Coroutine");
-            StartCoroutine(ShowTooSlow()); /* Bug - This makes future trials have only 0.5 seconds to choose, it runs whilst the lines below run. It disables controls
-                                            * for 1.5 seconds whilst the next trial is starting */
+            StartCoroutine(ShowTooSlow()); 
         }
         else if (button_pressed && !trial_finished)
         {
             trial_finished = true;
         }
+
         if (trial_finished) 
         {
-            Debug.Log("Trial Finished");
-            time_passed = 0;
             trials_run++; // Go to next trial
             Debug.Log("Trial: " + trials_run);
             trial_finished = false;
             button_pressed = false; // Reset button press for next trial
-
-            
         }
         keys_enabled = true;
     }
@@ -144,15 +136,15 @@ public class ChangeText : MonoBehaviour
 
     float CalculateTime(float time)
     {
-        time += Time.deltaTime; // Add time elapsed to time 
+        time -= Time.deltaTime; // Add time elapsed to time 
         return time;
     }
 
     void GetIncrease(string button_pressed)
     {
         System.Random rand = new();
-        float prob = 125f; // Probability of buttons jumping
-        int randy = rand.Next(1000);
+        int prob = 1; // Probability of buttons jumping
+        int randy = rand.Next(8);
 
         if (randy <= prob)
         {
@@ -219,9 +211,6 @@ public class ChangeText : MonoBehaviour
 
         TooSlowText.SetActive(false);
         ChooseText.SetActive(true);
-
-        Debug.Log("Finshed waiting");
-
         
     }
 
@@ -256,6 +245,7 @@ public class ChangeText : MonoBehaviour
     }
     private void FirstButton_performed(InputAction.CallbackContext obj)
     {
+        Debug.Log(Cooldown);
         if (Cooldown <= 0 && keys_enabled) // If the cooldown has finished
         {
             if (!trial_started)
