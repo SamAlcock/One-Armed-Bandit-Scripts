@@ -18,7 +18,6 @@ public class ChangeText : MonoBehaviour
     public int clicked_streak = 0;
     public int B1increase = 20;
     public int B2increase = 20;
-    int low_score = 0;
     float Cooldown = 0f;
     bool firstB1 = true;
     bool button_pressed;
@@ -32,8 +31,6 @@ public class ChangeText : MonoBehaviour
     GameObject MSpritePress;
     GameObject ZSprite;
     GameObject MSprite;
-    Color32 red = new Color32(255, 0, 0, 255);
-    Color32 green = new Color32(0, 255, 0,255);
 
     string prevClicked = "";
 
@@ -45,7 +42,6 @@ public class ChangeText : MonoBehaviour
     void Start()
     {
         Score = 0;
-        GoodBadText = GameObject.Find("Good/Bad Text");
         ChooseText = GameObject.Find("Choose Text");
         TooSlowText = GameObject.Find("Too Slow Text");
 
@@ -166,38 +162,21 @@ public class ChangeText : MonoBehaviour
     }
     IEnumerator NewText(int upper_threshold, string button_pressed)
     {
-        System.Random random = new System.Random();
-        int num = random.Next(1, 100); // Picks random number from 1 - 100
-        int inc_display = 0;
-        string good_bad = "";
 
-        if(num <= upper_threshold) // If random number is less than or equal to upper threshold
+        int inc_display = 0;
+
+        if(button_pressed == "B1")
         {
-            if(button_pressed == "B1")
-            {
-                Score += B1increase; // Increase score
-                inc_display = B1increase;
-            }
-            else if (button_pressed == "B2")
-            {
-                Score += B2increase; // Increase score
-                inc_display = B2increase;
-            }
-            good_bad = "Good";
-            GoodBadText.GetComponent<TextMeshProUGUI>().color = new Color32(0, 255, 0, 255);
-            good_sound.Play();
+            Score += B1increase; // Increase score
+            inc_display = B1increase;
         }
-        else
+        else if (button_pressed == "B2")
         {
-            Score += low_score; // Adds gained score to score total
-            inc_display = low_score;
-            good_bad = "Bad";
-            GoodBadText.GetComponent<TextMeshProUGUI>().color = new Color32(255, 0, 0, 255);
-            bad_sound.Play();
+            Score += B2increase; // Increase score
+            inc_display = B2increase;
         }
 
         buttonText.text = "SCORE\n" + Score + " (+" + inc_display + ")"; // Update score on screen
-        GoodBadText.GetComponent<TextMeshProUGUI>().text = good_bad;
 
         yield return new WaitForSeconds(1.5f);
 
