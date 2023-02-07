@@ -16,7 +16,7 @@ public class ChangeText : MonoBehaviour
     public int upper_threshold_1 = 30;
     public int upper_threshold_2 = 50;
     public int clicked_streak = 0;
-    public int B1increase = 20;
+    public int B1increase = 10;
     public int B2increase = 20;
     float Cooldown = 0f;
     bool firstB1 = true;
@@ -85,7 +85,6 @@ public class ChangeText : MonoBehaviour
     {
         if (!button_pressed && !trial_finished) // If a button has not been pressed and trial is not finished
         {
-            Debug.Log("Starting TooSlow Coroutine");
             StartCoroutine(ShowTooSlow()); 
         }
         else if (button_pressed && !trial_finished)
@@ -128,7 +127,7 @@ public class ChangeText : MonoBehaviour
 
     float CalculateTime(float time)
     {
-        time -= Time.deltaTime; // Add time elapsed to time 
+        time -= Time.deltaTime; // Subtracts time elapsed from time 
         return time;
     }
 
@@ -162,7 +161,6 @@ public class ChangeText : MonoBehaviour
     }
     IEnumerator NewText(int upper_threshold, string button_pressed)
     {
-
         int inc_display = 0;
 
         if(button_pressed == "B1")
@@ -209,13 +207,18 @@ public class ChangeText : MonoBehaviour
     {
         if (trials_run == 100)
         {
-            GoodBadText.GetComponent<TextMeshProUGUI>().text = "You have completed all trials";
+            buttonText.text = "You have \ncompleted all \ntrials";
             _input.Presses.FirstButton.Disable();
             _input.Presses.SecondButton.Disable();
+
+            keys_enabled = false;
+            StopAllCoroutines();
+            CancelInvoke();
         }
     }
     private void FirstButton_performed(InputAction.CallbackContext obj)
     {
+        Debug.Log(Cooldown);
         if (Cooldown <= 0 && keys_enabled) // If the cooldown has finished
         {
             if (!trial_started)
@@ -234,6 +237,7 @@ public class ChangeText : MonoBehaviour
 
     private void SecondButton_performed(InputAction.CallbackContext obj)
     {
+        Debug.Log(Cooldown);
         if (Cooldown <= 0 && keys_enabled)
         {
             if (!trial_started)
