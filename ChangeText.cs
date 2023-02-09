@@ -18,19 +18,21 @@ public class ChangeText : MonoBehaviour
     public int clicked_streak = 0;
     public int B1increase = 10;
     public int B2increase = 20;
-    float Cooldown = 0f;
+    public int max_trials = 100;
+    public int participant_number = 0;
     bool firstB1 = true;
     bool button_pressed;
     bool trial_started = false;
     bool trial_finished = false;
     bool keys_enabled;
-    GameObject GoodBadText;
     GameObject ChooseText;
     GameObject TooSlowText;
     GameObject ZSpritePress;
     GameObject MSpritePress;
     GameObject ZSprite;
     GameObject MSprite;
+
+    public List<int> participant_data = new List<int>();
 
     string prevClicked = "";
 
@@ -66,15 +68,14 @@ public class ChangeText : MonoBehaviour
 
         _input.Presses.SecondButton.Enable();
         _input.Presses.SecondButton.performed += SecondButton_performed;
+
+        participant_data = AddInitialData(participant_data);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (trial_started) // Need this if statement to ensure that the trials only start after the user's first button press
-        {
-            Cooldown = CalculateTime(Cooldown); // Find and return how long is left for cooldown
-        }
+
     }
 
     void StartTrial()
@@ -103,6 +104,35 @@ public class ChangeText : MonoBehaviour
         
     }
 
+    List<int> AddInitialData(List<int> list)
+    {
+        list.Add(participant_number);
+
+        return list;
+    }
+
+    List<int> AddData(List<int> list) // Needs to run once per trial
+    {
+        list.Add(trials_run);
+        // Explored choice?
+        // Exploited choice?
+        // Response time
+        // Too slow?
+
+        return list;
+    }
+
+    bool DetermineChoice()
+    {
+        /* To figure out whether choice was explore or exploit:
+         * - if the participant chose what they believed was highest pay off it's exploit, if not its explore
+         * 
+         * How to determine:
+         * - variable for highest known score - need to make something to determine what scores have been shown e.g. score shown bool
+         */
+        return true;
+    }
+
     IEnumerator ShowTooSlow() // Displays 'Too slow' for specified time
     {
         keys_enabled = false;
@@ -123,12 +153,6 @@ public class ChangeText : MonoBehaviour
         yield return new WaitForSeconds(0.3f);
         PressedKey.SetActive(false);
         Key.SetActive(true);
-    }
-
-    float CalculateTime(float time)
-    {
-        time -= Time.deltaTime; // Subtracts time elapsed from time 
-        return time;
     }
 
     void GetIncrease(string button_pressed)
@@ -205,7 +229,7 @@ public class ChangeText : MonoBehaviour
 
     void CheckIfFinished()
     {
-        if (trials_run == 100)
+        if (trials_run == max_trials)
         {
             buttonText.text = "You have \ncompleted all \ntrials";
             _input.Presses.FirstButton.Disable();
@@ -226,7 +250,6 @@ public class ChangeText : MonoBehaviour
                 StartTrial();
             }
             keys_enabled = false;
-            Cooldown = 1f; // Reset cooldown
             StartCoroutine(ShowKeyPress(ZSpritePress, ZSprite));
             button_pressed = true;
             ChooseText.SetActive(false);
@@ -244,7 +267,6 @@ public class ChangeText : MonoBehaviour
                 StartTrial();
             }
             keys_enabled = false;
-            Cooldown = 1f;
             StartCoroutine(ShowKeyPress(MSpritePress, MSprite));
             button_pressed = true;
             ChooseText.SetActive(false);
