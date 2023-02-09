@@ -218,8 +218,7 @@ public class ChangeText : MonoBehaviour
     }
     private void FirstButton_performed(InputAction.CallbackContext obj)
     {
-        Debug.Log(Cooldown);
-        if (Cooldown <= 0 && keys_enabled) // If the cooldown has finished
+        if (keys_enabled) // If the cooldown has finished
         {
             if (!trial_started)
             {
@@ -237,8 +236,7 @@ public class ChangeText : MonoBehaviour
 
     private void SecondButton_performed(InputAction.CallbackContext obj)
     {
-        Debug.Log(Cooldown);
-        if (Cooldown <= 0 && keys_enabled)
+        if (keys_enabled)
         {
             if (!trial_started)
             {
