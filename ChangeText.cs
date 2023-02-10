@@ -40,6 +40,7 @@ public class ChangeText : MonoBehaviour
 
     string prevClicked = "";
 
+    CSVManager toCSV;
 
     public AudioSource good_sound; 
     public AudioSource bad_sound;
@@ -74,6 +75,8 @@ public class ChangeText : MonoBehaviour
         _input.Presses.SecondButton.performed += SecondButton_performed;
 
         participant_data = AddInitialData(participant_data);
+
+        toCSV = GetComponent<CSVManager>();
     }
 
     // Update is called once per frame
@@ -275,6 +278,8 @@ public class ChangeText : MonoBehaviour
             keys_enabled = false;
             StopAllCoroutines();
             CancelInvoke();
+
+            toCSV.Main();
         }
     }
     private void FirstButton_performed(InputAction.CallbackContext obj)
