@@ -20,11 +20,15 @@ public class ChangeText : MonoBehaviour
     public int B2increase = 20;
     public int max_trials = 100;
     public int participant_number = 0;
+    int p_explore;
+    int p_exploit;
+    float response_time = 0f;
     bool firstB1 = true;
     bool button_pressed;
     bool trial_started = false;
     bool trial_finished = false;
     bool keys_enabled;
+    int too_slow = 0;
     GameObject ChooseText;
     GameObject TooSlowText;
     GameObject ZSpritePress;
@@ -32,7 +36,7 @@ public class ChangeText : MonoBehaviour
     GameObject ZSprite;
     GameObject MSprite;
 
-    public List<int> participant_data = new List<int>();
+    public List<float> participant_data = new List<float>();
 
     string prevClicked = "";
 
@@ -75,7 +79,14 @@ public class ChangeText : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        response_time = CalculateTime(response_time);
+    }
 
+    float CalculateTime(float time)
+    {
+        time += Time.deltaTime;
+
+        return time;
     }
 
     void StartTrial()
@@ -86,6 +97,7 @@ public class ChangeText : MonoBehaviour
     {
         if (!button_pressed && !trial_finished) // If a button has not been pressed and trial is not finished
         {
+            too_slow = 1;
             StartCoroutine(ShowTooSlow()); 
         }
         else if (button_pressed && !trial_finished)
@@ -95,6 +107,9 @@ public class ChangeText : MonoBehaviour
 
         if (trial_finished) 
         {
+            AddData(participant_data);
+            response_time = 0f;
+            too_slow = 0;
             trials_run++; // Go to next trial
             Debug.Log("Trial: " + trials_run);
             keys_enabled = true;
@@ -104,33 +119,55 @@ public class ChangeText : MonoBehaviour
         
     }
 
-    List<int> AddInitialData(List<int> list)
+    List<float> AddInitialData(List<float> list)
     {
         list.Add(participant_number);
 
         return list;
     }
 
-    List<int> AddData(List<int> list) // Needs to run once per trial
+    List<float> AddData(List<float> list) // Needs to run once per trial
     {
         list.Add(trials_run);
-        // Explored choice?
-        // Exploited choice?
-        // Response time
-        // Too slow?
+        list.Add(p_explore);
+        list.Add(p_exploit);
+        list.Add(response_time);
+        list.Add(too_slow);
 
         return list;
     }
 
-    bool DetermineChoice()
+    Tuple<int, int> DetermineChoice(string prev, string curr)
     {
         /* To figure out whether choice was explore or exploit:
          * - if the participant chose what they believed was highest pay off it's exploit, if not its explore
          * 
          * How to determine:
          * - variable for highest known score - need to make something to determine what scores have been shown e.g. score shown bool
+         * 
+         * EXPLOIT
+         * if they press button thats lower, but dont know the other its exploit
+         * 
+         * EXPLORE
+         * whenever the user switches button, it's explore
          */
-        return true;
+
+        int explore;
+        int exploit;
+
+        if (prev == curr)
+        {
+            explore = 1;
+            exploit = 0;
+        }
+        else
+        {
+            explore = 0;
+            exploit = 1;
+        }
+        
+
+        return Tuple.Create(explore, exploit);
     }
 
     IEnumerator ShowTooSlow() // Displays 'Too slow' for specified time
@@ -242,13 +279,17 @@ public class ChangeText : MonoBehaviour
     }
     private void FirstButton_performed(InputAction.CallbackContext obj)
     {
-        if (keys_enabled) // If the cooldown has finished
+        if (keys_enabled) // Only do something if keys are enabled
         {
+            string currClicked = "B1";
             if (!trial_started)
             {
                 trial_started = true;
                 StartTrial();
             }
+            var choice = DetermineChoice(prevClicked, currClicked);
+            p_explore = choice.Item1;
+            p_exploit = choice.Item2;
             keys_enabled = false;
             StartCoroutine(ShowKeyPress(ZSpritePress, ZSprite));
             button_pressed = true;
@@ -261,11 +302,15 @@ public class ChangeText : MonoBehaviour
     {
         if (keys_enabled)
         {
+            string currClicked = "B2";
             if (!trial_started)
             {
                 trial_started = true;
                 StartTrial();
             }
+            var choice = DetermineChoice(prevClicked, currClicked);
+            p_explore = choice.Item1;
+            p_exploit = choice.Item2;
             keys_enabled = false;
             StartCoroutine(ShowKeyPress(MSpritePress, MSprite));
             button_pressed = true;
