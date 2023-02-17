@@ -28,23 +28,15 @@ public class CSVManager : MonoBehaviour
             Debug.Log(participant[i].Id + "," + participant[i].Trial + "," + participant[i].Explored + "," + participant[i].Exploited + "," + participant[i].ResponseTime + "," + participant[i].TooSlow);
         }
 
-        if (File.Exists(path))
+        using FileStream fs = new FileStream(path, FileMode.Append, FileAccess.Write);
+        using StreamWriter sw = new StreamWriter(fs);
+ 
+        if (!File.Exists(path))
         {
-            using FileStream fs = new FileStream(path, FileMode.Append, FileAccess.Write);
-            using StreamWriter sw = new StreamWriter(fs);
-
-            InputData(participant, sw);
-        }
-        else
-        {
-            using var sw = new StreamWriter("leapfrog.csv");
             sw.WriteLine("Participant Number,Trial Number,Explored,Exploited,Response Time (seconds),Too Slow");
-
-            InputData(participant, sw);
         }
 
-
-        
+        InputData(participant, sw);
     }
 
     void InputData(List<ParticipantEntry> participant, StreamWriter writer)
