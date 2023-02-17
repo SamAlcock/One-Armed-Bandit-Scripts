@@ -137,6 +137,8 @@ public class ChangeText : MonoBehaviour
         list.Add(response_time);
         list.Add(too_slow);
 
+        Debug.Log("Data added");
+
         return list;
     }
 
@@ -278,6 +280,10 @@ public class ChangeText : MonoBehaviour
             keys_enabled = false;
             StopAllCoroutines();
             CancelInvoke();
+
+
+            Debug.Log("Entries logged: " + participant_data.Count);
+            Debug.Log(".csv script running!");
 
             toCSV.Main();
         }
