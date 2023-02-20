@@ -82,7 +82,10 @@ public class ChangeText : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        response_time = CalculateTime(response_time);
+        if (trial_started)
+        {
+            response_time = CalculateTime(response_time);
+        }  
     }
 
     float CalculateTime(float time)
