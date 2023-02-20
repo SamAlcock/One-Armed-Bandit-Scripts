@@ -28,6 +28,7 @@ public class ChangeText : MonoBehaviour
     bool trial_started = false;
     bool trial_finished = false;
     bool keys_enabled;
+    bool responded = false;
     int too_slow = 0;
     GameObject ChooseText;
     GameObject TooSlowText;
@@ -82,7 +83,7 @@ public class ChangeText : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (trial_started)
+        if (trial_started && !responded)
         {
             response_time = CalculateTime(response_time);
         }  
@@ -121,6 +122,7 @@ public class ChangeText : MonoBehaviour
             keys_enabled = true;
             trial_finished = false;
             button_pressed = false; // Reset button press for next trial
+            responded = false;
         }
         
     }
@@ -295,6 +297,7 @@ public class ChangeText : MonoBehaviour
     {
         if (keys_enabled) // Only do something if keys are enabled
         {
+            responded = true;
             string currClicked = "B1";
             if (!trial_started)
             {
@@ -316,6 +319,7 @@ public class ChangeText : MonoBehaviour
     {
         if (keys_enabled)
         {
+            responded = true;
             string currClicked = "B2";
             if (!trial_started)
             {
