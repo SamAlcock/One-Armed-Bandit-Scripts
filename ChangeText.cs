@@ -99,33 +99,35 @@ public class ChangeText : MonoBehaviour
     }
     void CheckIfNewTrial()
     {
-        if (!button_pressed && !trial_finished) // If a button has not been pressed and trial is not finished
+        if (trials_run < max_trials)
         {
-            too_slow = 1;
-            StartCoroutine(ShowTooSlow()); 
-        }
-        else if (button_pressed && !trial_finished)
-        {
-            trial_finished = true;
-        }
+            if (!button_pressed && !trial_finished) // If a button has not been pressed and trial is not finished
+            {
+                too_slow = 1;
+                StartCoroutine(ShowTooSlow());
+            }
+            else if (button_pressed && !trial_finished)
+            {
+                trial_finished = true;
+            }
 
-        if (trial_finished) 
-        {
-            AddData(participant_data);
-            response_time = 0f;
-            too_slow = 0;
-            trials_run++; // Go to next trial
-            Debug.Log("Trial: " + trials_run);
+            if (trial_finished)
+            {
+                AddData(participant_data);
+                response_time = 0f;
+                too_slow = 0;
+                trials_run++; // Go to next trial
+                Debug.Log("Trial: " + trials_run);
 
-            _input.Presses.FirstButton.Enable();
-            _input.Presses.SecondButton.Enable();
+                _input.Presses.FirstButton.Enable();
+                _input.Presses.SecondButton.Enable();
 
-            ChooseText.SetActive(true);
-            trial_finished = false;
-            button_pressed = false; // Reset button press for next trial
-            responded = false;
+                ChooseText.SetActive(true);
+                trial_finished = false;
+                button_pressed = false; // Reset button press for next trial
+                responded = false;
+            }
         }
-        
     }
 
     List<float> AddInitialData(List<float> list)
@@ -191,9 +193,6 @@ public class ChangeText : MonoBehaviour
         yield return new WaitForSeconds(1.5f);
         TooSlowText.SetActive(false);
 
-        _input.Presses.FirstButton.Enable();
-        _input.Presses.SecondButton.Enable();
-
         trial_finished = true;
     }
 
@@ -253,7 +252,6 @@ public class ChangeText : MonoBehaviour
 
         yield return new WaitForSeconds(1.5f);
 
-
         TooSlowText.SetActive(false);
 
     }
@@ -289,7 +287,6 @@ public class ChangeText : MonoBehaviour
 
             StopAllCoroutines();
             CancelInvoke();
-
 
             Debug.Log("Entries logged: " + participant_data.Count);
             Debug.Log(".csv script running!");
