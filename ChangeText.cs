@@ -99,35 +99,36 @@ public class ChangeText : MonoBehaviour
     }
     void CheckIfNewTrial()
     {
-        if (trials_run < max_trials)
+
+        if (!button_pressed && !trial_finished) // If a button has not been pressed and trial is not finished
         {
-            if (!button_pressed && !trial_finished) // If a button has not been pressed and trial is not finished
-            {
-                too_slow = 1;
-                StartCoroutine(ShowTooSlow());
-            }
-            else if (button_pressed && !trial_finished)
-            {
-                trial_finished = true;
-            }
-
-            if (trial_finished)
-            {
-                AddData(participant_data);
-                response_time = 0f;
-                too_slow = 0;
-                trials_run++; // Go to next trial
-                Debug.Log("Trial: " + trials_run);
-
-                _input.Presses.FirstButton.Enable();
-                _input.Presses.SecondButton.Enable();
-
-                ChooseText.SetActive(true);
-                trial_finished = false;
-                button_pressed = false; // Reset button press for next trial
-                responded = false;
-            }
+            too_slow = 1;
+            StartCoroutine(ShowTooSlow());
         }
+        else if (button_pressed && !trial_finished)
+        {
+            trial_finished = true;
+        }
+
+        if (trial_finished)
+        {
+            AddData(participant_data);
+            response_time = 0f;
+            too_slow = 0;
+            trials_run++; // Go to next trial
+            Debug.Log("Trial: " + trials_run);
+
+            _input.Presses.FirstButton.Enable();
+            _input.Presses.SecondButton.Enable();
+
+            ChooseText.SetActive(true);
+            trial_finished = false;
+            button_pressed = false; // Reset button press for next trial
+            responded = false;
+
+            CheckIfFinished();
+        }
+        
     }
 
     List<float> AddInitialData(List<float> list)
@@ -263,7 +264,7 @@ public class ChangeText : MonoBehaviour
 
         GetIncrease("B1");
 
-        CheckIfFinished();
+        
     }
 
     public void UpdateProbablity_2()
@@ -273,7 +274,7 @@ public class ChangeText : MonoBehaviour
 
         GetIncrease("B2");
 
-        CheckIfFinished();
+        
     }
 
     void CheckIfFinished()
@@ -284,6 +285,8 @@ public class ChangeText : MonoBehaviour
 
             _input.Presses.FirstButton.Disable();
             _input.Presses.SecondButton.Disable();
+
+            ChooseText.SetActive(false);
 
             StopAllCoroutines();
             CancelInvoke();
