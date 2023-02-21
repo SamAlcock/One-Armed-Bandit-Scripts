@@ -27,7 +27,6 @@ public class ChangeText : MonoBehaviour
     bool button_pressed;
     bool trial_started = false;
     bool trial_finished = false;
-    bool keys_enabled;
     bool responded = false;
     int too_slow = 0;
     GameObject ChooseText;
@@ -67,8 +66,6 @@ public class ChangeText : MonoBehaviour
 
 
         // Enabling key presses
-
-        keys_enabled = true;
         _input.Presses.FirstButton.Enable();
         _input.Presses.FirstButton.performed += FirstButton_performed;
 
@@ -119,7 +116,11 @@ public class ChangeText : MonoBehaviour
             too_slow = 0;
             trials_run++; // Go to next trial
             Debug.Log("Trial: " + trials_run);
-            keys_enabled = true;
+
+            _input.Presses.FirstButton.Enable();
+            _input.Presses.SecondButton.Enable();
+
+            ChooseText.SetActive(true);
             trial_finished = false;
             button_pressed = false; // Reset button press for next trial
             responded = false;
@@ -182,13 +183,16 @@ public class ChangeText : MonoBehaviour
 
     IEnumerator ShowTooSlow() // Displays 'Too slow' for specified time
     {
-        keys_enabled = false;
+        _input.Presses.FirstButton.Disable();
+        _input.Presses.SecondButton.Disable();
 
         ChooseText.SetActive(false);
         TooSlowText.SetActive(true);
         yield return new WaitForSeconds(1.5f);
         TooSlowText.SetActive(false);
-        ChooseText.SetActive(true);
+
+        _input.Presses.FirstButton.Enable();
+        _input.Presses.SecondButton.Enable();
 
         trial_finished = true;
     }
@@ -249,8 +253,8 @@ public class ChangeText : MonoBehaviour
 
         yield return new WaitForSeconds(1.5f);
 
+
         TooSlowText.SetActive(false);
-        ChooseText.SetActive(true);
 
     }
 
@@ -279,10 +283,10 @@ public class ChangeText : MonoBehaviour
         if (trials_run == max_trials)
         {
             buttonText.text = "You have \ncompleted all \ntrials";
+
             _input.Presses.FirstButton.Disable();
             _input.Presses.SecondButton.Disable();
 
-            keys_enabled = false;
             StopAllCoroutines();
             CancelInvoke();
 
@@ -295,46 +299,48 @@ public class ChangeText : MonoBehaviour
     }
     private void FirstButton_performed(InputAction.CallbackContext obj)
     {
-        if (keys_enabled) // Only do something if keys are enabled
+        responded = true;
+        string currClicked = "B1";
+        if (!trial_started)
         {
-            responded = true;
-            string currClicked = "B1";
-            if (!trial_started)
-            {
-                trial_started = true;
-                StartTrial();
-            }
-            var choice = DetermineChoice(prevClicked, currClicked);
-            p_explore = choice.Item1;
-            p_exploit = choice.Item2;
-            keys_enabled = false;
-            StartCoroutine(ShowKeyPress(ZSpritePress, ZSprite));
-            button_pressed = true;
-            ChooseText.SetActive(false);
-            UpdateProbablity_1(); // Carry out function
+            trial_started = true;
+            StartTrial();
         }
+        var choice = DetermineChoice(prevClicked, currClicked);
+        p_explore = choice.Item1;
+        p_exploit = choice.Item2;
+
+        _input.Presses.FirstButton.Disable();
+        _input.Presses.SecondButton.Disable();
+
+        StartCoroutine(ShowKeyPress(ZSpritePress, ZSprite));
+        button_pressed = true;
+        ChooseText.SetActive(false);
+        UpdateProbablity_1(); // Carry out function
+        
     }
 
     private void SecondButton_performed(InputAction.CallbackContext obj)
     {
-        if (keys_enabled)
+        responded = true;
+        string currClicked = "B2";
+        if (!trial_started)
         {
-            responded = true;
-            string currClicked = "B2";
-            if (!trial_started)
-            {
-                trial_started = true;
-                StartTrial();
-            }
-            var choice = DetermineChoice(prevClicked, currClicked);
-            p_explore = choice.Item1;
-            p_exploit = choice.Item2;
-            keys_enabled = false;
-            StartCoroutine(ShowKeyPress(MSpritePress, MSprite));
-            button_pressed = true;
-            ChooseText.SetActive(false);
-            UpdateProbablity_2();
+            trial_started = true;
+            StartTrial();
         }
+        var choice = DetermineChoice(prevClicked, currClicked);
+        p_explore = choice.Item1;
+        p_exploit = choice.Item2;
+
+        _input.Presses.FirstButton.Disable();
+        _input.Presses.SecondButton.Disable();
+
+        StartCoroutine(ShowKeyPress(MSpritePress, MSprite));
+        button_pressed = true;
+        ChooseText.SetActive(false);
+        UpdateProbablity_2();
+        
         
     }
 
