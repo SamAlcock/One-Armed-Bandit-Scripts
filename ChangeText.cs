@@ -304,6 +304,7 @@ public class ChangeText : MonoBehaviour
         string currClicked = "B1";
         if (!trial_started)
         {
+            responded = false;
             trial_started = true;
             StartTrial();
         }
@@ -331,6 +332,7 @@ public class ChangeText : MonoBehaviour
         string currClicked = "B2";
         if (!trial_started)
         {
+            responded = false;
             trial_started = true;
             StartTrial();
         }
