@@ -151,9 +151,17 @@ public class ChangeText : MonoBehaviour
         list.Add(response_time);
         list.Add(too_slow);
 
-        Debug.Log("Data added");
-
         return list;
+    }
+
+    void OutputDataToConsole() // Outputs all participant data to console
+    {
+        Debug.Log("Data going to .csv:");
+
+        for (int i = 1; i < participant_data.Count; i+=6)
+        {
+            Debug.Log(participant_data[0] + "," + participant_data[i] + "," + participant_data[i + 1] + "," + participant_data[i + 2] + "," + participant_data[i + 3] + "," + participant_data[i + 4] + "," + participant_data[i + 5]);
+        }
     }
 
     Tuple<int, int> DetermineChoice(string prev, string curr)
@@ -292,7 +300,8 @@ public class ChangeText : MonoBehaviour
             StopAllCoroutines();
             CancelInvoke();
 
-            Debug.Log("Entries logged: " + participant_data.Count);
+            OutputDataToConsole();
+
             Debug.Log(".csv script running!");
 
             toCSV.Main();
