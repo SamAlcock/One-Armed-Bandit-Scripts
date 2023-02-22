@@ -145,6 +145,7 @@ public class ChangeText : MonoBehaviour
     List<float> AddData(List<float> list) // Needs to run once per trial
     {
         list.Add(trials_run);
+        list.Add(Score);
         list.Add(p_explore);
         list.Add(p_exploit);
         list.Add(response_time);

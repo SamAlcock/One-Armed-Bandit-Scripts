@@ -20,10 +20,10 @@ public class CSVManager : MonoBehaviour
 
         bool exists = CheckIfFileExists(path); // Check if file exists - have to do this now instead of where the 'if (!exists)' is as the file already exists by then
 
-        for (int i = 1; i < Data.Count; i+=5) // Increment i by 5 because every 5 entries (excluding i = 0) is data for a new trial
+        for (int i = 1; i < Data.Count; i+=6) // Increment i by 6 because every 6 entries (excluding i = 0) is data for a new trial
         {
             // Assign this data to a new instance of ParticipantEntry
-            participant.Add(new ParticipantEntry { Id = (int)Data[0], Trial = (int)Data[i], Explored = (int)Data[i + 1], Exploited = (int)Data[i + 2], ResponseTime = Data[i + 3], TooSlow = (int)Data[i + 4]});
+            participant.Add(new ParticipantEntry { Id = (int)Data[0], Trial = (int)Data[i], Score = (int)Data[i + 1], Explored = (int)Data[i + 2], Exploited = (int)Data[i + 3], ResponseTime = Data[i + 4], TooSlow = (int)Data[i + 5]});
         }
 
         using FileStream fs = new FileStream(path, FileMode.Append, FileAccess.Write); // Allow appending to keep already recorded data
@@ -31,7 +31,7 @@ public class CSVManager : MonoBehaviour
  
         if (!exists) // Create the column headings if the file didn't exist previously
         {
-            sw.WriteLine("Participant Number,Trial Number,Explored,Exploited,Response Time (seconds),Too Slow");
+            sw.WriteLine("Participant Number,Trial Number,Score,Explored,Exploited,Response Time (seconds),Too Slow");
         }
 
         InputData(participant, sw);
@@ -41,7 +41,7 @@ public class CSVManager : MonoBehaviour
     {
         for (int i = 0; i < participant.Count; i++)
         {
-            writer.WriteLine(participant[i].Id + "," + participant[i].Trial + "," + participant[i].Explored + "," + participant[i].Exploited + "," + participant[i].ResponseTime + "," + participant[i].TooSlow);
+            writer.WriteLine(participant[i].Id + "," + participant[i].Trial + "," + participant[i].Score + "," + participant[i].Explored + "," + participant[i].Exploited + "," + participant[i].ResponseTime + "," + participant[i].TooSlow);
         }
     }
 
@@ -61,6 +61,7 @@ public class CSVManager : MonoBehaviour
     {
         public int Id { get; set; }
         public int Trial { get; set; }
+        public int Score { get; set; }
         public int Explored { get; set; }
         public int Exploited { get; set; }
         public float ResponseTime { get; set; }
