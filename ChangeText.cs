@@ -57,6 +57,8 @@ public class ChangeText : MonoBehaviour
         ZSprite = GameObject.Find("Z Key");
         MSprite = GameObject.Find("M Key");
 
+        ChooseText.SetActive(false);
+
         TooSlowText.SetActive(false);
 
         ZSpritePress.SetActive(false);
@@ -95,6 +97,8 @@ public class ChangeText : MonoBehaviour
 
     void StartTrial()
     {
+        ChooseText.SetActive(true);
+        buttonText.text = "Press Z or M key \nto increase \nyour score";
         InvokeRepeating("CheckIfNewTrial", 2f, 2f);
     }
     void CheckIfNewTrial()
@@ -263,8 +267,6 @@ public class ChangeText : MonoBehaviour
         StartCoroutine(NewText(upper_threshold_1, "B1")); // Send updated integer to display up to date score
 
         GetIncrease("B1");
-
-        
     }
 
     public void UpdateProbablity_2()
@@ -273,8 +275,6 @@ public class ChangeText : MonoBehaviour
         StartCoroutine(NewText(upper_threshold_2, "B2"));
 
         GetIncrease("B2");
-
-        
     }
 
     void CheckIfFinished()
@@ -306,17 +306,21 @@ public class ChangeText : MonoBehaviour
             trial_started = true;
             StartTrial();
         }
-        var choice = DetermineChoice(prevClicked, currClicked);
-        p_explore = choice.Item1;
-        p_exploit = choice.Item2;
+        else
+        {
+            var choice = DetermineChoice(prevClicked, currClicked);
+            p_explore = choice.Item1;
+            p_exploit = choice.Item2;
 
-        _input.Presses.FirstButton.Disable();
-        _input.Presses.SecondButton.Disable();
+            _input.Presses.FirstButton.Disable();
+            _input.Presses.SecondButton.Disable();
 
-        StartCoroutine(ShowKeyPress(ZSpritePress, ZSprite));
-        button_pressed = true;
-        ChooseText.SetActive(false);
-        UpdateProbablity_1(); // Carry out function
+            StartCoroutine(ShowKeyPress(ZSpritePress, ZSprite));
+            button_pressed = true;
+            ChooseText.SetActive(false);
+            UpdateProbablity_1(); // Carry out function
+        }
+        
         
     }
 
@@ -329,17 +333,21 @@ public class ChangeText : MonoBehaviour
             trial_started = true;
             StartTrial();
         }
-        var choice = DetermineChoice(prevClicked, currClicked);
-        p_explore = choice.Item1;
-        p_exploit = choice.Item2;
+        else
+        {
+            var choice = DetermineChoice(prevClicked, currClicked);
+            p_explore = choice.Item1;
+            p_exploit = choice.Item2;
 
-        _input.Presses.FirstButton.Disable();
-        _input.Presses.SecondButton.Disable();
+            _input.Presses.FirstButton.Disable();
+            _input.Presses.SecondButton.Disable();
 
-        StartCoroutine(ShowKeyPress(MSpritePress, MSprite));
-        button_pressed = true;
-        ChooseText.SetActive(false);
-        UpdateProbablity_2();
+            StartCoroutine(ShowKeyPress(MSpritePress, MSprite));
+            button_pressed = true;
+            ChooseText.SetActive(false);
+            UpdateProbablity_2();
+        }
+        
         
         
     }
