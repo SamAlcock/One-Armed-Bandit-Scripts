@@ -6,6 +6,7 @@ using System;
 using TMPro;
 using UnityEngine.InputSystem;
 using Unity.VisualScripting;
+using Unity.PlasticSCM.Editor.WebApi;
 
 public class ChangeText : MonoBehaviour
 {
@@ -164,34 +165,43 @@ public class ChangeText : MonoBehaviour
         }
     }
 
-    Tuple<int, int> DetermineChoice(string prev, string curr)
+    Tuple<int, int> DetermineChoice(string prev, string curr, int clicked_score, int other_score)
     {
         /* To figure out whether choice was explore or exploit:
-         * - if the participant chose what they believed was highest pay off it's exploit, if not its explore
-         * 
-         * How to determine:
-         * - variable for highest known score - need to make something to determine what scores have been shown e.g. score shown bool
-         * 
-         * EXPLOIT
-         * if they press button thats lower, but dont know the other its exploit
-         * 
-         * EXPLORE
-         * whenever the user switches button, it's explore
+         * High button + stay = exploit
+         * High button + leave = explore
+         * Low button + stay = exploit
+         * Low button + leave = explore
          */
 
         int explore;
         int exploit;
 
-        if (prev == curr)
+        if (prev == "B1" || prev == "B2")
         {
-            explore = 1;
-            exploit = 0;
+            if (prev == curr && clicked_score > other_score || prev == curr && clicked_score < other_score) // if stay + high button or low button
+            {
+                explore = 0;
+                exploit = 1;
+            }
+            else if (prev != curr && clicked_score > other_score || prev != curr && clicked_score < other_score) // if leave + high button or low button
+            {
+                explore = 1;
+                exploit = 0;
+            }
+            else // To avoid code crashing if there's an unforseen error
+            {
+                explore = 0;
+                exploit = 0;
+            }
         }
-        else
+        else // Remove this 
         {
             explore = 0;
-            exploit = 1;
+            exploit = 0;
         }
+        
+
         
 
         return Tuple.Create(explore, exploit);
@@ -262,7 +272,8 @@ public class ChangeText : MonoBehaviour
             inc_display = B2increase;
         }
 
-        buttonText.text = "SCORE\n" + Score + " (+" + inc_display + ")"; // Update score on screen
+        //buttonText.text = "SCORE\n" + Score + " (+" + inc_display + ")"; // Update score on screen
+        buttonText.text = "You got " + inc_display; 
 
         yield return new WaitForSeconds(1.5f);
 
@@ -319,7 +330,7 @@ public class ChangeText : MonoBehaviour
         }
         else
         {
-            var choice = DetermineChoice(prevClicked, currClicked);
+            var choice = DetermineChoice(prevClicked, currClicked, B1increase, B2increase);
             p_explore = choice.Item1;
             p_exploit = choice.Item2;
 
@@ -347,7 +358,7 @@ public class ChangeText : MonoBehaviour
         }
         else
         {
-            var choice = DetermineChoice(prevClicked, currClicked);
+            var choice = DetermineChoice(prevClicked, currClicked, B2increase, B1increase);
             p_explore = choice.Item1;
             p_exploit = choice.Item2;
 
