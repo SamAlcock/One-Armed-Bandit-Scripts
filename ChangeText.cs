@@ -17,6 +17,7 @@ public class ChangeText : MonoBehaviour
     public int upper_threshold_1 = 30;
     public int upper_threshold_2 = 50;
     public int clicked_streak = 0;
+    // previously 15 and 20
     public int B1increase = 10;
     public int B2increase = 20;
     public int max_trials = 100;
@@ -24,7 +25,6 @@ public class ChangeText : MonoBehaviour
     int p_explore;
     int p_exploit;
     float response_time = 0f;
-    bool firstB1 = true;
     bool button_pressed;
     bool trial_started = false;
     bool trial_finished = false;
@@ -249,11 +249,6 @@ public class ChangeText : MonoBehaviour
             }
             else if (button_pressed == "B2" && B1increase <= B2increase)
             {
-                if (firstB1)
-                {
-                    B1increase += 10; // First B1 jump is 30 instead of 20
-                    firstB1 = false;
-                }
                 B1increase += 20;
 
                 //Debug.Log("B1 Increased!");
