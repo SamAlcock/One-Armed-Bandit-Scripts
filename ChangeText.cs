@@ -36,6 +36,8 @@ public class ChangeText : MonoBehaviour
     GameObject MSpritePress;
     GameObject ZSprite;
     GameObject MSprite;
+    GameObject Instructions;
+
 
     public List<float> participant_data = new List<float>();
 
@@ -57,6 +59,8 @@ public class ChangeText : MonoBehaviour
         MSpritePress = GameObject.Find("M Key pressed");
         ZSprite = GameObject.Find("Z Key");
         MSprite = GameObject.Find("M Key");
+
+        Instructions = GameObject.Find("Instructions");
 
         ChooseText.SetActive(false);
 
@@ -241,7 +245,7 @@ public class ChangeText : MonoBehaviour
             {
                 B2increase += 20; // Increase the score button 2 gives
 
-                Debug.Log("B2 Increased!");
+                //Debug.Log("B2 Increased!");
             }
             else if (button_pressed == "B2" && B1increase <= B2increase)
             {
@@ -252,7 +256,7 @@ public class ChangeText : MonoBehaviour
                 }
                 B1increase += 20;
 
-                Debug.Log("B1 Increased!");
+                //Debug.Log("B1 Increased!");
             }
         }
         
@@ -326,6 +330,9 @@ public class ChangeText : MonoBehaviour
         {
             responded = false;
             trial_started = true;
+            Instructions.SetActive(false);
+            RectTransform move_text = buttonText.GetComponent<RectTransform>();
+            move_text.anchoredPosition = new Vector3(0, 39, 0);
             StartTrial();
         }
         else
@@ -354,6 +361,10 @@ public class ChangeText : MonoBehaviour
         {
             responded = false;
             trial_started = true;
+            Instructions.SetActive(false);
+            RectTransform move_text = buttonText.GetComponent<RectTransform>();
+            move_text.anchoredPosition = new Vector3(0, 39, 0);
+
             StartTrial();
         }
         else
