@@ -8,14 +8,11 @@ public class CSVManager : MonoBehaviour
 {
 
     ChangeText ParticipantData;
-    ChangeText Trials;
     public void Main()
     {
         ParticipantData = GetComponent<ChangeText>();
-        Trials = GetComponent<ChangeText>();
 
         List<float> Data = new List<float>(ParticipantData.participant_data); // Take recorded data from task and store it into a list
-        int maxTrials = Trials.max_trials;
 
         string path = "leapfrog.csv"; // Location of .csv file
 
@@ -34,17 +31,7 @@ public class CSVManager : MonoBehaviour
  
         if (!exists) // Create the column headings if the file didn't exist previously
         {
-            sw.Write("Participant Number,");
-            for (int i = 0; i < maxTrials; i++)
-            {
-                sw.Write("Trial Number,Score,Explored,Exploited,Response Time (seconds),Too Slow");
-
-                if (i < maxTrials - 1)
-                {
-                    sw.Write(",");
-                }
-            }
-            sw.WriteLine();
+            sw.WriteLine("Participant Number,Trial Number,Score,Explored,Exploited,Response Time (seconds),Too Slow");
         }
 
         InputData(participant, sw);
@@ -52,15 +39,9 @@ public class CSVManager : MonoBehaviour
 
     void InputData(List<ParticipantEntry> participant, StreamWriter writer) // Inputs every instances attribute in the correct format
     {
-        writer.Write(participant[0].Id + ",");
         for (int i = 0; i < participant.Count; i++)
         {
-            writer.Write(participant[i].Trial + "," + participant[i].Score + "," + participant[i].Explored + "," + participant[i].Exploited + "," + participant[i].ResponseTime + "," + participant[i].TooSlow);
-
-            if (i < participant.Count - 1)
-            {
-                writer.Write(",");
-            }
+            writer.WriteLine(participant[i].Id + "," + participant[i].Trial + "," + participant[i].Score + "," + participant[i].Explored + "," + participant[i].Exploited + "," + participant[i].ResponseTime + "," + participant[i].TooSlow);
         }
     }
 
