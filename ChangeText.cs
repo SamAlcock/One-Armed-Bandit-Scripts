@@ -30,6 +30,8 @@ public class ChangeText : MonoBehaviour
     bool trial_finished = false;
     bool responded = false;
     int too_slow = 0;
+    int z_key = 0;
+    int m_key = 0;
     GameObject ChooseText;
     GameObject TooSlowText;
     GameObject ZSpritePress;
@@ -112,6 +114,8 @@ public class ChangeText : MonoBehaviour
         if (!button_pressed && !trial_finished) // If a button has not been pressed and trial is not finished
         {
             too_slow = 1;
+            z_key = 0;
+            m_key = 0;
             StartCoroutine(ShowTooSlow());
         }
         else if (button_pressed && !trial_finished)
@@ -155,6 +159,8 @@ public class ChangeText : MonoBehaviour
         list.Add(p_exploit);
         list.Add(response_time);
         list.Add(too_slow);
+        list.Add(z_key);
+        list.Add(m_key);
 
         return list;
     }
@@ -163,9 +169,9 @@ public class ChangeText : MonoBehaviour
     {
         Debug.Log("Data going to .csv:");
 
-        for (int i = 1; i < participant_data.Count; i+=6)
+        for (int i = 1; i < participant_data.Count; i+=8)
         {
-            Debug.Log(participant_data[0] + "," + participant_data[i] + "," + participant_data[i + 1] + "," + participant_data[i + 2] + "," + participant_data[i + 3] + "," + participant_data[i + 4] + "," + participant_data[i + 5]);
+            Debug.Log(participant_data[0] + "," + participant_data[i] + "," + participant_data[i + 1] + "," + participant_data[i + 2] + "," + participant_data[i + 3] + "," + participant_data[i + 4] + "," + participant_data[i + 5] + "," + participant_data[i + 6] + "," + participant_data[i + 7]);
         }
     }
 
@@ -321,6 +327,8 @@ public class ChangeText : MonoBehaviour
     {
         responded = true;
         string currClicked = "B1";
+        z_key = 1;
+        m_key = 0;
         if (!trial_started)
         {
             responded = false;
@@ -352,6 +360,8 @@ public class ChangeText : MonoBehaviour
     {
         responded = true;
         string currClicked = "B2";
+        z_key = 0;
+        m_key = 1;
         if (!trial_started)
         {
             responded = false;
