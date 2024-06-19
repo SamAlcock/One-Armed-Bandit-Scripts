@@ -245,7 +245,7 @@ public class ChangeText : MonoBehaviour
         int prob = 1; // Probability of buttons jumping
         int randy = rand.Next(8);
 
-        if (randy <= prob)
+        if (randy < prob)
         {
             if (button_pressed == "B1" && B2increase <= B1increase) // If button 1 has been pressed and B2 is currently inferior
             {
